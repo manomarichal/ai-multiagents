@@ -1,0 +1,5 @@
+ if currentDepth == self.depth:
+                    value = self.evaluationFunction(successor)
+                else:
+                    value = self._miniMax(gameState.generateSuccessor(agentIndex, action), (agentIndex+1)%(gameState.getNumAgents()),
+                                               currentDepth + 1)
