@@ -323,7 +323,7 @@ def betterEvaluationFunction(s):
         else:
             return 0
 
-    score = _foodNear() + 10*_capsuleNear() + 20000*_capsuleEaten() + 20*_ghostNear() + s.getScore()
+    score = _foodNear() + 10*_capsuleNear() + 10000*_capsuleEaten() + 20*_ghostNear() + s.getScore()
     return score
 
 # Abbreviation
