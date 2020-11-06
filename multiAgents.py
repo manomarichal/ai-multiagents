@@ -189,13 +189,47 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    def value(self, gameState, alpha=-float("inf"), beta=float("inf"), agentIndex=0, currentDepth=0):
+        if gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        if agentIndex == 0:
+            if currentDepth == self.depth:
+                return self.evaluationFunction(gameState)
+            return self.maxValue(gameState, alpha, beta, agentIndex, currentDepth + 1)
+        else:
+            return self.minValue(gameState, alpha, beta, agentIndex, currentDepth)
+
+    def maxValue(self, gameState, alpha, beta, agentIndex=0, currentDepth=0):
+        bestValue = -float("inf")
+        for action in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, action)
+            value = self.value(successor, alpha, beta, (agentIndex + 1) % gameState.getNumAgents(), currentDepth)
+            bestValue = max(bestValue, value)
+            if value == bestValue and currentDepth == 1:
+                self.actionToReturn = action
+            if bestValue > beta:
+                return bestValue
+            alpha = max(alpha, bestValue)
+        return bestValue
+
+    def minValue(self, gameState, alpha, beta, agentIndex=0, currentDepth=0):
+        bestValue = float("inf")
+        for action in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, action)
+            value = self.value(successor, alpha, beta, (agentIndex + 1) % gameState.getNumAgents(), currentDepth)
+            bestValue = min(bestValue, value)
+            if bestValue < alpha:
+                return bestValue
+            beta = min(beta, bestValue)
+        return bestValue
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        self.value(gameState)
+        return self.actionToReturn
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
