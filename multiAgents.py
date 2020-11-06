@@ -73,24 +73,27 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         "*** YOUR CODE HERE ***"
-        foodDistances = list()
+        nearestFood = float("inf")
         for x in range(0, newFood.width, 1):
             for y in range(0, newFood.height, 1):
                 if newFood[x][y]:
-                    foodDistances.append(util.manhattanDistance(newPos, (x, y)))
-        foodDistances.sort()
+                    distance = util.manhattanDistance(newPos, (x, y))
+                    if distance < nearestFood:
+                        nearestFood = distance
+        nearestFood = 1/nearestFood if nearestFood != 0 else float("inf")
 
-        ghostIsNear = False
-        for ghostPos in successorGameState.getGhostPositions():
-            if util.manhattanDistance(newPos, ghostPos) < 1:
-                ghostIsNear = True
-
-        if ghostIsNear:
-            return 0
-        elif currentGameState.getFood().count(True) > successorGameState.getFood().count(True):
-            return 1
+        if currentGameState.getScore() < successorGameState.getScore():
+            scoreIncrease = float("inf")
         else:
-            return 1/foodDistances[0]
+            scoreIncrease = 0
+
+        ghostIsNear = 0
+        for ghostPos in successorGameState.getGhostPositions():
+            if util.manhattanDistance(newPos, ghostPos) == 0:
+                ghostIsNear = -float('inf')
+
+        score = ghostIsNear + scoreIncrease + nearestFood
+        return score
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -280,6 +283,7 @@ def betterEvaluationFunction(s):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+
     def _closestItem(pacmanPos, itemPositions):
         closestDistance = float("inf")
         for itemPosition in itemPositions:
@@ -316,14 +320,14 @@ def betterEvaluationFunction(s):
         return 1/len(capsules) if len(capsules) > 0 else 1e5
 
     def _ghostNear():
-        if closestDangerousGhost == 1:
+        if closestDangerousGhost == 0:
             return -float("inf")
         elif len(frenlyGhosts) > 1:
             return 1/closestFrenlyGhost
         else:
             return 0
 
-    score = _foodNear() + 10*_capsuleNear() + 10000*_capsuleEaten() + 20*_ghostNear() + s.getScore()
+    score = _foodNear() + _capsuleNear() + 2*_ghostNear() + 100*_capsuleEaten() + s.getScore()
     return score
 
 # Abbreviation
